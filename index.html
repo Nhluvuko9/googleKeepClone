@@ -37,16 +37,15 @@
       </div>
       <div class="tooltip">
         <span class="material-symbols-outlined hover">view_agenda</span>
-        <span class="tooltip-text">View List</span>
+        <span class="tooltip-text">List view</span>
       </div>
       <div class="tooltip">
         <span class="material-symbols-outlined hover">settings</span>
         <span class="tooltip-text">Settings</span>
       </div>
-      
       <div class="tooltip">
         <span class="material-symbols-outlined hover" style="color: #535555;">apps</span>
-        <span class="tooltip-text">Apps</span>
+        <span class="tooltip-text">Google apps</span>
       </div>
       <div class="tooltip">
         <span class="material-symbols-outlined hover"><img src="./assets/profile-circle.jpg" alt="Account" style="width: 30px; height: 30px; border-radius: 50%;"></span>
@@ -57,7 +56,7 @@
 
   <main>
     <div class="sidebar">
-			<div class="sidebar-item">
+			<div class="sidebar-item active">
         <span class="material-symbols-outlined hover active">lightbulb</span>
         <span class="sidebar-text">Notes</span>
       </div>
@@ -77,11 +76,15 @@
         <span class="material-symbols-outlined hover"> delete </span>
         <span class="sidebar-text">Trash</span>
       </div>
+
+      <p>Open-source licenses</p>
     </div>
 
     <div class="form-container inactive-form">
 			<form>
-        <input type="text" class="note-text" placeholder="Take a note..." />
+        <div class="placeholder">
+          <input type="text" class="note-text" placeholder="Take a note..." />
+        </div>
         <div class="form-actions">
           <div class="tooltip">
             <span class="material-symbols-outlined hover">check_box</span>
@@ -89,11 +92,11 @@
           </div>
         	<div class="tooltip">
           	<span class="material-symbols-outlined hover">brush</span>
-          	<span class="tooltip-text">New Drawing</span>
+          	<span class="tooltip-text">New note with drawing</span>
         	</div>
         	<div class="tooltip">
 						<span class="material-symbols-outlined hover">image</span>
-          	<span class="tooltip-text">New Image</span>
+          	<span class="tooltip-text">New note with image</span>
         	</div>
       	</div>
       </form>
@@ -101,12 +104,18 @@
 
     <div class="form-container active-form">
       <form class="form" id="form">
-        <input id="note-title" type="text" class="note-title" placeholder="Title" />
+        <div class="title">
+          <input id="note-title" type="text" class="note-title" placeholder="Title" />
+          <div class="tooltip">
+            <span class="material-symbols-outlined hover small-icon" style="color: #5d5f5f; font-size: 1.85rem;">keep</span>
+            <span class="tooltip-text">Pin Note</span>
+          </div>
+        </div>
         <input id="note-text" type="text" class="note-text" placeholder="Take a note..." />
         <div class="form-actions">
           <div class="icons">
             <div class="tooltip">
-              <span class="material-symbols-outlined hover small-icon" style="color: #444746;">text_format</span>
+              <span class="material-symbols-outlined hover small-icon" style="color: #444746; font-size: 1.4rem;">text_format</span>
               <span class="tooltip-text">Formatting Options</span>
             </div>
             <div class="tooltip">
@@ -143,7 +152,7 @@
               <span class="tooltip-text">Redo</span>
             </div>
           </div>
-          <button class="close-btn">close</button>
+          <button class="close-btn">Close</button>
         </div>
       </form>
     </div>
