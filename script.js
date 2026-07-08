@@ -3,38 +3,50 @@ let noteList = [];
 
 const inactiveForm = document.querySelector(".inactive-form");
 const activeForm = document.querySelector(".active-form");
-const noteTitle = document.querySelector(".note-title");
-const noteText = document.querySelector(".note-text");
+const noteTitleInput = document.querySelector(".note-title");
+const noteTextInput = document.querySelector(".active-form .note-text");
 const closeBtn = document.querySelector(".close-btn");
 const notesContainer = document.querySelector(".notes");
 
-inactiveForm.addEventListener("click", () => {
-    inactiveForm.style.display = "none";
-    activeForm.style.display = "flex";
-    noteTitleInput.focus();
-});
+if (inactiveForm) {
+    inactiveForm.addEventListener("click", () => {
+        inactiveForm.style.display = "none";
+        activeForm.style.display = "flex";
+        noteTitleInput.focus();
+    });
+}
 
-closeBtn.addEventListener("click", (e) => {
-    e.preventDefault();
-    addNote();
-    closeActiveForm();
-});
-
-document.addEventListener("click", (e) => {
-    const isClickInsideActive = activeForm.contains(e.target);
-    const isClickInsideInactive = inactiveForm.contains(e.target);
-
-    if (!isClickInsideActive && !isClickInsideInactive && activeForm.style.display === "flex") {
+if (closeBtn) {
+    closeBtn.addEventListener("click", (e) => {
+        e.preventDefault();
         addNote();
         closeActiveForm();
+    });
+}
+
+document.addEventListener("click", (e) => {
+    if (!activeForm || !inactiveForm) return;
+
+    const isFormOpen = activeForm.style.display === "flex";
+
+    if (isFormOpen) {
+        const clickedInsideActive = activeForm.contains(e.target);
+        const clickedInsideInactive = inactiveForm.contains(e.target);
+
+        if (!clickedInsideActive && !clickedInsideInactive) {
+            addNote();
+            closeActiveForm();
+        }
     }
 });
 
 function closeActiveForm() {
-    activeForm.style.display = "none";
-    inactiveForm.style.display = "flex";
-    // noteTitle.value = "";
-    activeForm.querySelector("form").reset();
+    if (activeForm && inactiveForm) {
+        activeForm.style.display = "none";
+        inactiveForm.style.display = "flex";
+        const innerForm = activeForm.querySelector("form");
+        if (innerForm) innerForm.reset();
+    }
 };
 
 // ---- Data Handling -----
@@ -47,7 +59,6 @@ const createNote = (title, text) => {
 // Load notes from local storage
 const loadNotes = () => {
     noteList = JSON.parse(localStorage.getItem("notes")) || [];
-
     return noteList;
 };
 
@@ -61,28 +72,75 @@ const storeNotes = (noteObject) => {
 };
 
 const displayNotes = () => {
-    if (!notesContainer) return;
+    if (!notesContainer) {
+        console.error("Error: Could not find container element with class '.notes' in HTML.");
+        return;
+    } 
 
     notesContainer.innerHTML = "";
     noteList = loadNotes();
 
     noteList.forEach(note => {
-        const card = document.createElement("form");
-        card.classList.add(".form");
+        const noteCard = document.createElement("div");
+        noteCard.classList.add("note");
+        // if (note.color) {
+        //     card.style.backgroundColor = note.color;
+        // }
 
-        const titleEl = document.createElement("h3");
-        titleEl.innerText = note.title;
+        // if (note.title) {
+        //     const titleEl = document.createElement("h3");
+        //     titleEl.classList.add("note-title");
+        //     titleEl.innerText = note.title;
+        //     card.appendChild(titleEl);
+        // }
 
-        const textEl = document.createElement("p");
-        textEl.innerText = note.text;
+        // if (note.text) {
+        //     const textEl = document.createElement("p");
+        //     textEl.classList.add("note-text");
+        //     textEl.innerText = note.text;
+        //     card.appendChild(textEl);
+        // }
 
-        card.appendChild(titleEl);
-        card.appendChild(textEl);
-        notesContainer.appendChild(card);
+        // <span class="material-symbols-outlined check-circle">check_circle</span>
+
+        noteCard.innerHTML = `
+         <div class="title">${note.title || ""}</div>
+         <div class="text">${note.text || ""}</div>
+          <div class="note-footer">
+            <div class="tooltip">
+              <span class="material-symbols-outlined hover small-icon">palette</span>
+              <span class="tooltip-text">Change Color</span>
+            </div>
+            <div class="tooltip">
+              <span class="material-symbols-outlined hover small-icon">add_alert</span>
+              <span class="tooltip-text">Remind me</span>
+            </div>
+            <div class="tooltip">
+              <span class="material-symbols-outlined hover small-icon">person_add</span>
+              <span class="tooltip-text">Collaborator</span>
+            </div>
+            <div class="tooltip">
+              <span class="material-symbols-outlined hover small-icon">image</span>
+              <span class="tooltip-text">Add Image</span>
+            </div>
+            <div class="tooltip">
+              <span class="material-symbols-outlined hover small-icon">archive</span>
+              <span class="tooltip-text">Archive</span>
+            </div>
+            <div class="tooltip">
+              <span class="material-symbols-outlined hover small-icon">more_vert</span>
+              <span class="tooltip-text">More</span>
+            </div>
+          </div>
+        `;
+
+        notesContainer.appendChild(noteCard);
     });
 };
 
 const addNote = () => {
+    if (!noteTitleInput || !noteTextInput) return;
+
     const title = noteTitleInput.value.trim();
     const text = noteTextInput.value.trim();
 
