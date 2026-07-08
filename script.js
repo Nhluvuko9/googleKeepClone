@@ -1,16 +1,22 @@
+// Main script for handling form interactions
+let noteList = []; 
+
 const inactiveForm = document.querySelector(".inactive-form");
 const activeForm = document.querySelector(".active-form");
 const noteTitle = document.querySelector(".note-title");
+const noteText = document.querySelector(".note-text");
 const closeBtn = document.querySelector(".close-btn");
+const notesContainer = document.querySelector(".notes");
 
 inactiveForm.addEventListener("click", () => {
     inactiveForm.style.display = "none";
     activeForm.style.display = "flex";
-    noteTitle.focus();
+    noteTitleInput.focus();
 });
 
 closeBtn.addEventListener("click", (e) => {
     e.preventDefault();
+    addNote();
     closeActiveForm();
 });
 
@@ -19,6 +25,7 @@ document.addEventListener("click", (e) => {
     const isClickInsideInactive = inactiveForm.contains(e.target);
 
     if (!isClickInsideActive && !isClickInsideInactive && activeForm.style.display === "flex") {
+        addNote();
         closeActiveForm();
     }
 });
@@ -26,6 +33,163 @@ document.addEventListener("click", (e) => {
 function closeActiveForm() {
     activeForm.style.display = "none";
     inactiveForm.style.display = "flex";
-    noteTitle.value = "";
+    // noteTitle.value = "";
     activeForm.querySelector("form").reset();
-}
+};
+
+// ---- Data Handling -----
+
+// Create note from input
+const createNote = (title, text) => {
+    return { title: title, text: text };
+};
+
+// Load notes from local storage
+const loadNotes = () => {
+    noteList = JSON.parse(localStorage.getItem("notes")) || [];
+
+    return noteList;
+};
+
+// Store note locally on computer
+const storeNotes = (noteObject) => {
+    noteList = loadNotes();
+
+    noteList.push(noteObject);
+
+    localStorage.setItem("notes", JSON.stringify(noteList));
+};
+
+const displayNotes = () => {
+    if (!notesContainer) return;
+
+    notesContainer.innerHTML = "";
+    noteList = loadNotes();
+
+    noteList.forEach(note => {
+        const card = document.createElement("form");
+        card.classList.add(".form");
+
+        const titleEl = document.createElement("h3");
+        titleEl.innerText = note.title;
+
+        const textEl = document.createElement("p");
+        textEl.innerText = note.text;
+
+        card.appendChild(titleEl);
+        card.appendChild(textEl);
+        notesContainer.appendChild(card);
+    });
+};
+
+const addNote = () => {
+    const title = noteTitleInput.value.trim();
+    const text = noteTextInput.value.trim();
+
+    if (title || text) {
+        const noteObject = createNote(title, text);
+        storeNotes(noteObject);
+        displayNotes();
+    }
+};
+
+loadNotes();
+displayNotes();
+
+
+// ---------------------------------------------------------------
+
+// Sidebar toggle functionality
+const sidebarText = document.querySelector(".sidebar-text");
+const sidebarItem = document.querySelector(".sidebar-item");
+
+// Navbar icon hover effect
+const settingsIcons = document.querySelectorAll(".settings-tooltip");
+
+const closeAllSettings = () => {
+    settingsIcons.forEach((icons) => {
+        const trigger = icons.querySelector(".settings-trigger");
+        const popover = icons.querySelector(".settings-menu");
+
+        popover.classList.remove("show");
+        trigger.classList.remove("show");
+        trigger.setAttribute("aria-expanded", "false");
+    });
+};
+
+settingsIcons.forEach((icons) => {
+    const menutrigger = icons.querySelector(".settings-trigger");
+    const popovermenu = icons.querySelector(".settings-menu");
+
+    if (!menutrigger || !popovermenu) return;
+    
+    const closeSettings = () => {
+        popovermenu.classList.remove("show");
+        menutrigger.classList.remove("show");
+        menutrigger.setAttribute("aria-expanded", "false");
+    };
+
+    const openSettings = () => {
+        closeAllSettings();
+        popovermenu.classList.add("show");
+        menutrigger.classList.add("show");
+        menutrigger.setAttribute("aria-expanded", "true");
+    };       
+        
+    const toggleSettings = () => {
+        const isOpen = popovermenu.classList.contains("show");
+        if (isOpen) {
+            closeSettings();
+        } else {
+            openSettings();
+        }
+    };        
+        
+    menutrigger.addEventListener("click", (e) => {
+        e.stopPropagation();
+        toggleSettings();
+    });
+
+    popovermenu.addEventListener("click", (e) => {
+        e.stopPropagation();
+    });
+
+});
+
+document.addEventListener("click", () => {
+    closeAllSettings();
+});
+
+// Note
+
+
+// Read user input 
+
+
+
+// Display note
+// const displayNotes = () => {
+
+//     noteList.forEach(note => {
+//         const container = document.createElement(".notes");
+//         const title = document.createElement(".title");
+//         const title = document.createElement(".text");
+
+//         title.innerText = note.title;
+//         text.innerText = note.text;
+//         container.appendChild(title);
+//         container.appendChild(text);
+
+//         const noteListContainer = document.querySelector(".note");
+//         noteListContainer.appendChild(container);
+//     });
+
+// };
+
+// Create the Note [Full Process]
+// const addNote = () => {
+//     const [title, text] = activeForm();
+//     const noteObject = createNote(title, text);
+//     storeNotes(noteObject);
+//     displayNotes();
+// };
