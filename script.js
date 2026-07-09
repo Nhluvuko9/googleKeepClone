@@ -1,4 +1,5 @@
-// Main script for handling form interactions
+// -------- GLOBAL STATE & SELECTORS -----------
+
 let noteList = []; 
 
 const inactiveForm = document.querySelector(".inactive-form");
@@ -8,11 +9,12 @@ const noteTextInput = document.querySelector(".active-form .note-text");
 const closeBtn = document.querySelector(".close-btn");
 const notesContainer = document.querySelector(".notes");
 
+// --------- FORM INTERACTIONS -----------------
 if (inactiveForm) {
     inactiveForm.addEventListener("click", () => {
         inactiveForm.style.display = "none";
-        activeForm.style.display = "flex";
-        noteTitleInput.focus();
+        if (activeForm) activeForm.style.display = "flex";
+        if (noteTitleInput) noteTitleInput.focus();
     });
 }
 
@@ -49,7 +51,7 @@ function closeActiveForm() {
     }
 };
 
-// ---- Data Handling -----
+// --------- DATA Handling ---------------------
 
 // Create note from input
 const createNote = (title, text) => {
@@ -72,10 +74,7 @@ const storeNotes = (noteObject) => {
 };
 
 const displayNotes = () => {
-    if (!notesContainer) {
-        console.error("Error: Could not find container element with class '.notes' in HTML.");
-        return;
-    } 
+    if (!notesContainer) return;
 
     notesContainer.innerHTML = "";
     noteList = loadNotes();
@@ -83,23 +82,6 @@ const displayNotes = () => {
     noteList.forEach(note => {
         const noteCard = document.createElement("div");
         noteCard.classList.add("note");
-        // if (note.color) {
-        //     card.style.backgroundColor = note.color;
-        // }
-
-        // if (note.title) {
-        //     const titleEl = document.createElement("h3");
-        //     titleEl.classList.add("note-title");
-        //     titleEl.innerText = note.title;
-        //     card.appendChild(titleEl);
-        // }
-
-        // if (note.text) {
-        //     const textEl = document.createElement("p");
-        //     textEl.classList.add("note-text");
-        //     textEl.innerText = note.text;
-        //     card.appendChild(textEl);
-        // }
 
         // <span class="material-symbols-outlined check-circle">check_circle</span>
 
@@ -109,7 +91,7 @@ const displayNotes = () => {
           <div class="note-footer">
             <div class="tooltip">
               <span class="material-symbols-outlined hover small-icon">palette</span>
-              <span class="tooltip-text">Change Color</span>
+              <span class="tooltip-text">Background options</span>
             </div>
             <div class="tooltip">
               <span class="material-symbols-outlined hover small-icon">add_alert</span>
@@ -151,17 +133,41 @@ const addNote = () => {
     }
 };
 
+// --------- Deleting notes functionality ------------------
+const initTrashFeature = () => {
+    const sidebarItem = document.querySelectorAll(".sidebar-item");
+    let trashButton = null;
+    
+    sidebarItem.forEach(item => {
+        const textEl = item.querySelector(".sidebar-text");
+        if (textEl && textEl.innerText.trim().toLowerCase() === "trash") {
+            trashButton = item;
+        }
+    });
+    
+    if (trashButton) {
+        trashButton.addEventListener("click", () => {
+            const confirmDelete = confirm("Are yu sure you want to permanently delete all notes? ");
+            if (confirmDelete) {
+                noteList = [];
+                localStorage.setItem("notes", JSON.stringify(noteList));
+                displayNotes();
+            }
+        });
+    }
+}
+
+// ------------ APP STARTUP -----------------------------------
 loadNotes();
 displayNotes();
+initTrashFeature();
 
+// ------------ SIDEBAR TOGGLE FUNCTIONALITY ------------------
 
-// ---------------------------------------------------------------
-
-// Sidebar toggle functionality
 const sidebarText = document.querySelector(".sidebar-text");
 const sidebarItem = document.querySelector(".sidebar-item");
 
-// Navbar icon hover effect
+//------------ NAVBAR TOOLTIP FUNCTIONS ----------------------
 const settingsIcons = document.querySelectorAll(".settings-tooltip");
 
 const closeAllSettings = () => {
@@ -218,36 +224,59 @@ document.addEventListener("click", () => {
     closeAllSettings();
 });
 
-// Note
+// ----------- NOTE TOOLTIP FUNCTIONS ------------------------
+const moreIcons = document.querySelector(".more-tooltip");
 
+const closeAllOptions = () => {
+    moreIcons.forEach((icons) => {
+        const trigger = icons.querySelector(".more-trigger");
+        const popover = icons.querySelector(".more-menu");
 
-// Read user input 
+        popover.classList.remove("show");
+        trigger.classList.remove("show");
+        trigger.setAttribute("aria-expanded", "false");
+    });
+};
 
+moreIcons.forEach((icons) => {
+    const menutrigger = icons.querySelector(".more-trigger");
+    const popovermenu = icons.querySelector(".more-menu");
 
+    if (!menutrigger || !popovermenu) return;
+    
+    const closeOptions = () => {
+        popovermenu.classList.remove("show");
+        menutrigger.classList.remove("show");
+        menutrigger.setAttribute("aria-expanded", "false");
+    };
 
-// Display note
-// const displayNotes = () => {
+    const openOptions = () => {
+        closeAllOptions();
+        popovermenu.classList.add("show");
+        menutrigger.classList.add("show");
+        menutrigger.setAttribute("aria-expanded", "true");
+    };       
+        
+    const toggleOptions = () => {
+        const isOpen = popovermenu.classList.contains("show");
+        if (isOpen) {
+            closeOptions();
+        } else {
+            openOptions();
+        }
+    };        
+        
+    menutrigger.addEventListener("click", (e) => {
+        e.stopPropagation();
+        toggleSettings();
+    });
 
-//     noteList.forEach(note => {
-//         const container = document.createElement(".notes");
-//         const title = document.createElement(".title");
-//         const title = document.createElement(".text");
+    popovermenu.addEventListener("click", (e) => {
+        e.stopPropagation();
+    });
 
-//         title.innerText = note.title;
-//         text.innerText = note.text;
-//         container.appendChild(title);
-//         container.appendChild(text);
+});
 
-//         const noteListContainer = document.querySelector(".note");
-//         noteListContainer.appendChild(container);
-//     });
-
-// };
-
-// Create the Note [Full Process]
-// const addNote = () => {
-//     const [title, text] = activeForm();
-//     const noteObject = createNote(title, text);
-//     storeNotes(noteObject);
-//     displayNotes();
-// };
+document.addEventListener("click", () => {
+    closeAllOptions();
+});
