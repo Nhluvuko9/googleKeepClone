@@ -336,6 +336,30 @@ input:focus {
   font-size: 1.25rem;
 } 
 
+/* #checklist-container {
+  margin: 10px 0;
+}
+
+.checklist-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 4px 0;
+}
+
+.list-item-input {
+  border: none;
+  outline: none;
+  width: 100%;
+  font-size: 0.9rem;
+}
+
+.drag-icon, .remove-item {
+  color: #a0a0a0;
+  font-size: 1.2rem;
+  cursor: pointer;
+} */
+
 /* Note */
 
 .notes {

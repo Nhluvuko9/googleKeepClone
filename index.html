@@ -104,7 +104,7 @@
         </div>
         <div class="form-actions">
           <div class="tooltip">
-            <span class="material-symbols-outlined hover">check_box</span>
+            <span class="material-symbols-outlined hover checkbox">check_box</span>
             <span class="tooltip-text">New List</span>
           </div>
         	<div class="tooltip">
@@ -129,6 +129,16 @@
           </div>
         </div>
         <input id="note-text" type="text" class="note-text" placeholder="Take a note..." />
+        
+        <div id="checklist-container" style="display: block; padding: 8px 0; border-top: 1px solid #d3d4d4; border-bottom: 1px solid #d3d4d4;">
+          <div class="checklist-item" style="display: flex; align-items: center; gap: 10px; width: 598px;">
+            <span class="material-symbols-outlined" style="color: #5d5f5f; font-size: 20px; cursor: move; align-items: start;">drag_indicator</span>
+            <input type="checkbox" style="cursor: pointer;" />
+            <input type="text" class="list-item-input" placeholder="List item" style="border: none; outline: none; width: 100%; font-size: 0.9rem;" />
+            <span class="material-symbols-outlined" style="color: black; font-size: 20px; cursor: pointer;">close</span>
+          </div>
+        </div>
+        
         <div class="form-actions">
           <div class="icons">
             <div class="tooltip">

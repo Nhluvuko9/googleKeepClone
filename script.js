@@ -1,6 +1,7 @@
 // -------- GLOBAL STATE & SELECTORS -----------
 
 let noteList = []; 
+let activeTab = ["notes", "archive"];
 
 const inactiveForm = document.querySelector(".inactive-form");
 const activeForm = document.querySelector(".active-form");
@@ -8,8 +9,9 @@ const noteTitleInput = document.querySelector(".note-title");
 const noteTextInput = document.querySelector(".active-form .note-text");
 const closeBtn = document.querySelector(".close-btn");
 const notesContainer = document.querySelector(".notes");
+const checklistContainer = document.getElementById("checklist-container");
 
-// --------- FORM INTERACTIONS -----------------
+// ------------ FORM INTERACTIONS -------------------------
 if (inactiveForm) {
     inactiveForm.addEventListener("click", () => {
         inactiveForm.style.display = "none";
@@ -51,11 +53,124 @@ function closeActiveForm() {
     }
 };
 
-// --------- DATA Handling ---------------------
+// ------------ FORM TOOLTIP FUNCTIONS ---------------------------------
+if (inactiveForm) {
+    inactiveForm.addEventListener("click", (e) => {
+        const isCheckboxClick = e.target.textContent.trim() === "check_box" || e.target.closest(".tooltip")?.textContent.includes("New List");
+        if (isCheckboxClick) {
+            e.stopPropagation();
+            if (noteTextInput) noteTextInput.style.display = "none";
+            if (checklistContainer) checklistContainer.style.display = "block";
+            
+            openActiveForm();
+
+            const listInput = document.querySelector(".list-item-input");
+            if (listInput) listInput.focus();
+        } else {
+            if (checklistContainer) checklistContainer.style.display = "none";
+            if (noteTextInput) noteTextInput.style.display = "block";
+           
+            openActiveForm();
+        }
+
+    });
+}
+
+function openActiveForm() {
+    if (inactiveForm) inactiveForm.style.display = "none";
+    if (activeForm) activeForm.style.display = "block";
+    if (noteTitleInput) noteTitleInput.focus();
+}
+
+if (closeBtn) {
+    closeBtn.addEventListener("click", (e) => {
+        e.preventDefault();
+        addNote(false);
+        closeActiveForm();
+    });
+}
+
+document.addEventListener("click", (e) => {
+    if (!activeForm || !inactiveForm) return;
+    const isFormOpen = activeForm.style.diplay === "block";
+
+    if (isFormOpen) {
+        const clickedInsideActive = activeForm.contains(e.target);
+        const clickedInsideInactive = inactiveForm.contains(e.target);
+
+        if (!clickedInsideActive && !clickedInsideInactive) {
+            addNote(false);
+            closeActiveForm();
+        }
+    }
+});
+
+function closeActiveForm() {
+    if (activeForm && inactiveForm) {
+        activeForm.style.diplay = "none";
+        inactiveForm.style.display = "block";
+        if (checklistContainer) checklistContainer.style.diplay = "none";
+        if (noteTextInput) noteTextInput.style.display = "block";
+
+        const innerForm = activeForm.querySelector("form");
+        if (innerForm) innerForm.reset();
+    }
+}
+
+if (checklistContainer) {
+    checklistContainer.addEventListener("keydown", (e) => {
+        if (e.target.classList.contains("list-item-input") && e.key === "Enter") {
+            e.preventDefault();
+            if (e.target.value.trime() !== "") {
+                const newRow = document.createElement("div");
+                newRow.classList.add("checklist-item");
+                newRow.style.cssText = "display: flex; align-items: center; gap: 10px;";
+                newRow.innerHTML = `
+                    <span class="material-symbols-outlined" style="color: #5d5f5f; font-size: 20px; cursor: move; align-items: start;">drag_indicator</span>
+                    <input type="checkbox" style="cursor: pointer;" />
+                    <input type="text" class="list-item-input" placeholder="List item" style="border: none; outline: none; width: 100%; font-size: 0.9rem;" />
+                    <span class="material-symbols-outlined remove-item" style="color: black; font-size: 20px; cursor: pointer;">close</span>
+                `;
+                e.target.closest(".checklist-item").insertAdjacentElement("afterend", newRow);
+                newRow.querySelector(".list-item-input").focus();
+            }
+        }
+
+    });
+    checklistContainer.addEventListener("click", (e) => {
+        if (e.target.classList.contains("remove-item")) {
+            const allRows = checklistContainer.querySelectorAll(".checklist-item");
+            if (allRows.length > 1) {
+                e.target.closest(".checklist-item").remove();
+            } else {
+                const inputElement = e.target.closest(".checklist-item").querySelector(".list-item-input");
+                if (inputElement) inputElement.value = "";
+            }
+        }
+    });
+
+}
+
+const formArchiveBtn = document.querySelector('.active-form .material-symbols-outlined[class*="archive"]');
+if (formArchiveBtn) {
+    formArchiveBtn.closest(".tooltip").addEventListener("click", (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        addNote(true);
+        closeActiveForm();
+    });
+}
+
+// --------- DATA HANDLING---------------------
 
 // Create note from input
-const createNote = (title, text) => {
-    return { title: title, text: text };
+const createNote = (title, text, isArchived = false) => {
+    return { 
+        id: Date.now().toString(),
+        title: title, 
+        text: text,
+        isArchived: isArchived
+    };
 };
 
 // Load notes from local storage
@@ -75,13 +190,22 @@ const storeNotes = (noteObject) => {
 
 const displayNotes = () => {
     if (!notesContainer) return;
-
     notesContainer.innerHTML = "";
     noteList = loadNotes();
 
-    noteList.forEach(note => {
+    const filteredNotes = noteList.filter(note => {
+        if (activeTab.includes("archive") && note.isArchived) return true;
+        if (activeTab.includes("notes") && !note.isArchived) return true;
+        return false;
+    });
+
+    FilteredNotes.forEach(note => {
         const noteCard = document.createElement("div");
         noteCard.classList.add("note");
+        noteCard.dataset.id = note.id;
+
+        const archivedIconText = note.isArchived ? "unarchived" : "archived";
+        const archivedTooltipText = note.isArchived ? "Unarchived" : "Archived";
 
         // <span class="material-symbols-outlined check-circle">check_circle</span>
 
@@ -121,10 +245,21 @@ const displayNotes = () => {
 };
 
 const addNote = () => {
-    if (!noteTitleInput || !noteTextInput) return;
+    if (!noteTitleInput) return;
 
-    const title = noteTitleInput.value.trim();
-    const text = noteTextInput.value.trim();
+    const title = noteTitleInput.ariaValueMax.trim();
+    let text = "";
+
+    if (checklistContainer && checklistContainer.style.display === 'block') {
+        const listInputs = document.querySelectorAll('.list-item-input');
+        const items = [];
+        listInputs.forEach(input => {
+            if (input.value.trim()) items.push(`☐ ${input.value.trim()}`);
+        });
+        text = items.join('\n');
+    } else if (noteTextInput) {
+        text = noteTextInput.value.trim();
+    }
 
     if (title || text) {
         const noteObject = createNote(title, text);
@@ -132,6 +267,38 @@ const addNote = () => {
         displayNotes();
     }
 };
+
+if (notesContainer) {
+    notesContainer.addEventListener("click", (e) => {
+        const archiveBtnClick = e.target.closest(".archive-btn");
+        if (archivedBtnClick) {
+            const noteCard = archiveBtnClick.closest(".note");
+            const noteId = noteCard.dataset.id;
+
+            noteList = loadNotes();
+            const targetNote = noteList.find(n => n.id === noteId);
+
+            if (targetNote) {
+                targetNote.isArchive = !targetNote.isArchived;
+                localStorage.setItem("note", JSON.stringify(noteList));
+                displayNotes();
+            }
+        }
+    });
+}
+
+const initSidebarNavigation = () => {
+    const sidebarItem = document.querySelectorAll(".sidebar-item");
+
+    sidebarItem.forEach(item => {
+        item.add("click", () => {
+            const textEl = item.querySelector(".sidebar-text");
+            if (!textEl) return;
+
+            consttextValue = textEl.innerText.trim().toLowerCase();
+        })
+    })
+}
 
 // --------- Deleting notes functionality ------------------
 const initTrashFeature = () => {
@@ -147,7 +314,7 @@ const initTrashFeature = () => {
     
     if (trashButton) {
         trashButton.addEventListener("click", () => {
-            const confirmDelete = confirm("Are yu sure you want to permanently delete all notes? ");
+            const confirmDelete = confirm("Are you sure you want to permanently delete all notes? ");
             if (confirmDelete) {
                 noteList = [];
                 localStorage.setItem("notes", JSON.stringify(noteList));
@@ -166,6 +333,8 @@ initTrashFeature();
 
 const sidebarText = document.querySelector(".sidebar-text");
 const sidebarItem = document.querySelector(".sidebar-item");
+
+
 
 //------------ NAVBAR TOOLTIP FUNCTIONS ----------------------
 const settingsIcons = document.querySelectorAll(".settings-tooltip");
@@ -280,3 +449,5 @@ moreIcons.forEach((icons) => {
 document.addEventListener("click", () => {
     closeAllOptions();
 });
+
+// ------------ 
