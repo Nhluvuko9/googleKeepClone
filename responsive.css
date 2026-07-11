@@ -1,0 +1,100 @@
+@media screen and (max-mwidth: 1024px) {
+    nav {
+        margin: 0;
+        padding: 8px 16px;
+    }
+    .search-bar {
+        width: 55%;
+    }
+    .form-container {
+        width: 90%;
+    }
+    .note {
+        max-width: 100%;
+        padding: 20px;
+        grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+    }
+    .sidebar {
+        width: 70px;
+    }
+    .sidebar:hover {
+        width: 220px;
+    }
+}
+
+/* MOBILE */
+@media screen and (max-width: 767px) {
+    nav {
+        margin: 0;
+        padding: 8px;
+    }
+    .logo-text {
+        display: none;
+    }
+    .search-bar {
+    width: 100%;
+    margin: 0 10px;
+    height: 42px;
+    }
+    .search-bar input {
+    font-size: 0.9rem;
+    }
+    .settings {
+    gap: 4px;
+    }
+    .sidebar {
+    position: fixed;
+    width: 60px;
+    }
+    .sidebar:hover {
+    width: 60px;
+    box-shadow: none;
+    }
+    .sidebar-Text,
+    .sidebar-text,
+    .sidebar p {
+    display: none;
+    }
+    .form-container {
+    width: calc(100% - 20px);
+    margin: 20px auto;
+    }
+    .note-title {
+    font-size: 1rem;
+    }
+    .note-text {
+    font-size: 0.95rem;
+    }
+    .form-actions .icons {
+    flex-wrap: wrap;
+    gap: 4px;
+    }
+    .notes {
+    width: calc(100% - 20px);
+    padding: 10px;
+    grid-template-columns: 1fr;
+    gap: 12px;
+    }
+    .note {
+    width: 100%;
+    }
+    .note .note-footer {
+        display: flex;
+        gap: 6px;
+        margin-top: 15px;
+    }
+    .tooltip-text {
+        display: none;
+    }
+}
+
+/* DESKTOP */
+@media screen and (min-width: 1400px) {
+    .notes {
+        max-width: 1200px;
+        grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+    }
+    .form-container {
+    max-width: 700px;
+    }
+}
