@@ -25,5 +25,5 @@ export const notesContainer = document.querySelector(".notes");
 export const checklistContainer = document.getElementById("checklist-container");
 // Navbar
 export const settingsIcons = document.querySelectorAll(".settings-tooltip");
-// Sidebar
+
 
